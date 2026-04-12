@@ -22,7 +22,7 @@ def load_models():
     models["all_mini_lm"] = SentenceTransformer(
         "all-MiniLM-L6-v2", device="cpu"
     )
-
+    """
     models["bge_base"] = SentenceTransformer(
         "BAAI/bge-base-en-v1.5", device="cpu"
     )
@@ -34,7 +34,7 @@ def load_models():
     models["bge_large"] = SentenceTransformer(
         "BAAI/bge-large-en-v1.5", device="cpu"
     )
-
+    """
     return models
 
 models = load_models()
@@ -297,7 +297,7 @@ def main():
 # Streamlit UI
 # ----------------------------
     global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index  
-    trans_model = "bge_base"; #bge_large, bge_base, intfloat, all_mini_lm
+    trans_model = "all_mini_lm"; #bge_large, bge_base, intfloat, all_mini_lm
     model = models["all_mini_lm"]
     API_KEY = st.secrets["API_KEY"];
     model = SentenceTransformer(trans_model);
