@@ -34,16 +34,6 @@ def call_with_retry(payload, retries=3):
         print(f"Retry {i+1}...")
     return ""
 
-with open("qa_list.json", "r") as f:
-    qa_list = json.load(f)
-
-with open(f"documents_{trans_model}.json", "r") as f:
-    documents = json.load(f)
-
-embeddings = np.load(f"floats_{trans_model}.npy")
-
-conversation_history = [];
-llmmodel = "meta-llama/llama-3.1-8b-instruct";
 def safe_llm_call(response):
     try:
         data = response.json()
@@ -149,10 +139,6 @@ def query_decomp_tool(query: str, model=llmmodel):
                 items.append(line.lstrip("- ").strip())
     resp = re.findall(r'<reasoning>(.*?)</reasoning>', resp, re.DOTALL);
     return resp, items
-
-faiss.normalize_L2(embeddings)
-index = faiss.IndexFlatIP(embeddings.shape[1])
-index.add(embeddings)
 
 def get_embedding(text):
     return model.encode(text).tolist()
@@ -278,11 +264,26 @@ def main():
 # ----------------------------
 # Streamlit UI
 # ----------------------------
+    global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel.index
     trans_model_saves.run()
     trans_model = "bge_base";#bge_large, bge_base, intfloat, all_mini_lm
-    global API_KEY, model
     API_KEY = st.secrets["API_KEY"];
     model = SentenceTransformer(trans_model);
+
+    with open("qa_list.json", "r") as f:
+    qa_list = json.load(f)
+    
+    with open(f"documents_{trans_model}.json", "r") as f:
+        documents = json.load(f)
+    
+    embeddings = np.load(f"floats_{trans_model}.npy")
+    
+    conversation_history = [];
+    llmmodel = "meta-llama/llama-3.1-8b-instruct";
+    faiss.normalize_L2(embeddings)
+    index = faiss.IndexFlatIP(embeddings.shape[1])
+    index.add(embeddings)
+
     st.title("🩺 Healthcare Chat Assistant")
     
     if "history" not in st.session_state:
