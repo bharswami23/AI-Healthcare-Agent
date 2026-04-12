@@ -271,7 +271,7 @@ def main():
     model = SentenceTransformer(trans_model);
 
     with open("qa_list.json", "r") as f:
-    qa_list = json.load(f)
+        qa_list = json.load(f)
     
     with open(f"documents_{trans_model}.json", "r") as f:
         documents = json.load(f)
