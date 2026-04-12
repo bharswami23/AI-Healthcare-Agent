@@ -39,7 +39,7 @@ def load_models():
 
 models = load_models()
 
-global API_KEY, model, qa_list, documents, embeddings, conversation_history,index
+global API_KEY, model, qa_list, documents, embeddings, conversation_history,index, llmmodel
 
 def safe_llm_call(response):
     try:
