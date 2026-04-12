@@ -1,6 +1,5 @@
 numpy
 sentence_transformers
-collections 
 defaultdict
 requests
 streamlit
