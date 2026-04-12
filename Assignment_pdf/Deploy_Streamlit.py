@@ -301,6 +301,7 @@ def main():
     qa_path = os.path.join(BASE_DIR, "qa_list.json")
     trans_model = "all_mini_lm"; #bge_large, bge_base, intfloat, all_mini_lm
     doc_path = os.path.join(BASE_DIR, f"documents_{trans_model}.json")
+    floats_path = os.path.join(BASE_DIR, f"floats_{trans_model}.json")
     model = models["all_mini_lm"]
     API_KEY = st.secrets["API_KEY"];
     model = SentenceTransformer(trans_model);
@@ -311,7 +312,7 @@ def main():
     with open(doc_path, "r") as f:
         documents = json.load(f)
     
-    embeddings = np.load(f"floats_{trans_model}.npy")
+    embeddings = np.load(floats_path)
     
     conversation_history = [];
     llmmodel = "meta-llama/llama-3.1-8b-instruct";
