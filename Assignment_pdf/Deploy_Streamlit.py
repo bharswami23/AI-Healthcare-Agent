@@ -299,9 +299,8 @@ def main():
     global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index  
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     qa_path = os.path.join(BASE_DIR, "qa_list.json")
-    doc_path = os.path.join(BASE_DIR, f"documents_{trans_model}.json")
-    
     trans_model = "all_mini_lm"; #bge_large, bge_base, intfloat, all_mini_lm
+    doc_path = os.path.join(BASE_DIR, f"documents_{trans_model}.json")
     model = models["all_mini_lm"]
     API_KEY = st.secrets["API_KEY"];
     model = SentenceTransformer(trans_model);
