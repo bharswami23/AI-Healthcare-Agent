@@ -9,10 +9,11 @@ import streamlit as st
 import time
 from sentence_transformers import SentenceTransformer
 import os
+import torch
+
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ["TORCH_DEVICE"] = "cpu"
-
-import torch
+global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index  
 torch.set_default_tensor_type(torch.FloatTensor)
 
 @st.cache_resource
