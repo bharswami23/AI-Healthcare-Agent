@@ -1,4 +1,4 @@
-faiss
+faiss-cpu
 numpy
 sentence_transformersfrom 
 collections 
