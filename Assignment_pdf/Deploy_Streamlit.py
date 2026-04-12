@@ -305,7 +305,9 @@ def main():
     floats_path = os.path.join(BASE_DIR, f"floats_{trans_model}.npy")
     model = models["all_mini_lm"]
     API_KEY = st.secrets["API_KEY"];
-    print(API_KEY);
+    f"""
+    {API_KEY}
+    """
     model = SentenceTransformer(trans_model);
 
     with open(qa_path, "r") as f:
