@@ -79,9 +79,6 @@ def call_with_retry(payload, retries=3):
 
     return ""   # final fallback
 def query_decomp_tool(query: str, model=""):
-    f"""
-    {llmmodel}
-    """
     prompt = f"""
     You are an expert query/task planner for a RAG system.
 
