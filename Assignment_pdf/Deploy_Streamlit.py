@@ -297,15 +297,19 @@ def main():
 # Streamlit UI
 # ----------------------------
     global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index  
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    qa_path = os.path.join(BASE_DIR, "qa_list.json")
+    doc_path = os.path.join(BASE_DIR, f"documents_{trans_model}.json")
+    
     trans_model = "all_mini_lm"; #bge_large, bge_base, intfloat, all_mini_lm
     model = models["all_mini_lm"]
     API_KEY = st.secrets["API_KEY"];
     model = SentenceTransformer(trans_model);
 
-    with open("qa_list.json", "r") as f:
+    with open(qa_path, "r") as f:
         qa_list = json.load(f)
     
-    with open(f"documents_{trans_model}.json", "r") as f:
+    with open(doc_path, "r") as f:
         documents = json.load(f)
     
     embeddings = np.load(f"floats_{trans_model}.npy")
