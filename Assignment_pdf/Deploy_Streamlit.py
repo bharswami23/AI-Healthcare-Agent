@@ -7,8 +7,7 @@ from collections import defaultdict
 import requests
 import streamlit as st
 import time
-model=[];
-API_KEY=""
+global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index
 def safe_llm_call(response):
     try:
         data = response.json()
