@@ -2,7 +2,6 @@ numpy
 sentence_transformers
 requests
 streamlit
-time
 PyPDF2
 bs4
 fitz
