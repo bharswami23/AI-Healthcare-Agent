@@ -1,6 +1,5 @@
 numpy
 sentence_transformers
-defaultdict
 requests
 streamlit
 time
