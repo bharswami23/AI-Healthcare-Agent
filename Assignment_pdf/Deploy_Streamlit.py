@@ -13,7 +13,6 @@ import torch
 
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ["TORCH_DEVICE"] = "cpu"
-global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index  
 torch.set_default_tensor_type(torch.FloatTensor)
 
 @st.cache_resource
@@ -41,31 +40,6 @@ def load_models():
 models = load_models()
 
 global API_KEY, model, qa_list, documents, embeddings, conversation_history,index
-llmmodel=""
-def safe_llm_call(response):
-    try:
-        data = response.json()
-        content = data.get("choices", [{}])[0].get("message", {}).get("content", None)
-        if content is None:
-            print("⚠️ Empty content from model:", data)
-            return ""
-        return content.strip()
-    except Exception as e:
-        print("⚠️ Exception parsing response:", e)
-        return ""
-
-def call_with_retry(payload, retries=3):
-    for i in range(retries):
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions",
-        headers={
-        "Authorization": f"Bearer {API_KEY}",
-        "Content-Type": "application/json"
-        }, json=payload)
-        resp = safe_llm_call(response)
-        if resp:
-            return resp
-        print(f"Retry {i+1}...")
-    return ""
 
 def safe_llm_call(response):
     try:
@@ -105,6 +79,9 @@ def call_with_retry(payload, retries=3):
 
     return ""   # final fallback
 def query_decomp_tool(query: str, model=llmmodel):
+    f"""
+    {llmmodel}
+    """
     prompt = f"""
     You are an expert query/task planner for a RAG system.
 
@@ -305,9 +282,7 @@ def main():
     floats_path = os.path.join(BASE_DIR, f"floats_{trans_model}.npy")
     model = models["all_mini_lm"]
     API_KEY = st.secrets["API_KEY"];
-    f"""
-    {API_KEY}
-    """
+
     model = SentenceTransformer(trans_model);
 
     with open(qa_path, "r") as f:
