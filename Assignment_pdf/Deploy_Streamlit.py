@@ -22,7 +22,7 @@ def load_models():
     models["all_mini_lm"] = SentenceTransformer(
         "all-MiniLM-L6-v2", device="cpu"
     )
-    """
+    
     models["bge_base"] = SentenceTransformer(
         "BAAI/bge-base-en-v1.5", device="cpu"
     )
@@ -30,7 +30,7 @@ def load_models():
     models["intfloat"] = SentenceTransformer(
         "intfloat/e5-base-v2", device="cpu"
     )
-
+    """
     models["bge_large"] = SentenceTransformer(
         "BAAI/bge-large-en-v1.5", device="cpu"
     )
