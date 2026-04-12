@@ -275,110 +275,96 @@ def query_answer_tool(query,subqs,context,model=llmmodel):
     resp = re.sub(r'<answer>.*?</answer>', '', resp, flags=re.DOTALL)
     return resp, ' '.join(ans)
 
-def keyword_match(query, documents):
-    keywords = query.lower().split()
-    results = []
-
-    for doc in documents:
-        text = doc["text"].lower()
-
-        score = sum(1 for k in keywords if k in text)
-
-        # 🔥 BOOST numeric content
-        if re.search(r'\d+(\.\d+)?%', text):
-            score += 2
-
-        if score > 0:
-            results.append((score, doc))
-
-    results.sort(reverse=True, key=lambda x: x[0])
-    return [doc for _, doc in results[:10]]
+def main():
 # ----------------------------
 # Streamlit UI
 # ----------------------------
 
-st.title("🩺 Healthcare Chat Assistant")
-
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-query = st.text_input("Ask your question:")
-st.markdown("""
-<style>
-/* Remove gap between columns */
-div[data-testid="column"] {
-    padding: 0 !important;
-}
-
-/* Remove space between columns container */
-div[data-testid="stHorizontalBlock"] {
-    gap: 0rem !important;
-}
-</style>
-""", unsafe_allow_html=True)
-col1, col2, col3 = st.columns([4,12,26]);
-qnum=0;
-context_str = "";
-with col1:
-    if st.button("Ask") and query:
-        start_time = time.time()
-        query = re.sub(r'\s+', ' ', query).strip()
-        conversation_history = st.session_state.history.copy()  # Use session history for the current conversation
-        try:
-            qnum=st.session_state.history[-1]["qnum"]+1;
-        except:
-            qnum=0;
-        resp, subquestions = query_decomp_tool(query)
-        answers = []
-        resp2 = [];
-        all_queries = [query] + subquestions
-
-        contexts = []
-        for q in all_queries:
-            contexts.append(retrieve(q, k=5))
-
-        # flatten AFTER selection
-        all_context = [item for sublist in contexts for item in sublist]
-
-        # deduplicate
-        seen = set()
-        filtered_context = []
-        for c in all_context:
-            key = (c["doc_id"], c["text"])
-            if key not in seen:
-                seen.add(key)
-                filtered_context.append(c)
-
-        context_str = "\n\n".join([
-        f"({c['doc_id']}: {c['title']} {c['text']})\n"
-        for c in filtered_context
-        ])
-        resp2, answers = query_answer_tool(query=query,subqs=subquestions,context=context_str)
-
-        if isinstance(resp, list):
-            resp = " ".join(resp)
-        if isinstance(resp2, list):
-            resp2 = ' '.join(resp2);
-        steps = resp + "\n" + resp2;
-        end_time = time.time()
-        # Save conversation
-        st.session_state.history.append({
-        "time":f"{end_time - start_time:0.2f}",
-        "qnum": qnum,
-        "question": query,
-        "steps": steps,
-        "answer":answers
-        });
-with col2:
-    if(st.button("Clear Conversation")):
-        st.session_state.history = [];
-
-grouped = defaultdict(lambda: {"question": "", "steps": "", "answers": []})
-for msg in st.session_state.history:
-    qnum = msg["qnum"]
-    with st.expander(f"""Reasoning {qnum+1} (Time: {msg['time']}s)""",expanded=False):
-        st.write(f"🧠: {msg['steps']}");
-    with st.expander(f"""Question {qnum+1}""",expanded=False):
-        st.write(f"🧑‍💻: {msg['question']}");
-    with st.expander(f"""Answer {qnum+1}""",expanded=False):
-        st.write(f"🤖: {msg['answer']}");
+    st.title("🩺 Healthcare Chat Assistant")
+    
+    if "history" not in st.session_state:
+        st.session_state.history = []
+    
+    query = st.text_input("Ask your question:")
+    st.markdown("""
+    <style>
+    /* Remove gap between columns */
+    div[data-testid="column"] {
+        padding: 0 !important;
+    }
+    
+    /* Remove space between columns container */
+    div[data-testid="stHorizontalBlock"] {
+        gap: 0rem !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    col1, col2, col3 = st.columns([4,12,26]);
+    qnum=0;
+    context_str = "";
+    with col1:
+        if st.button("Ask") and query:
+            start_time = time.time()
+            query = re.sub(r'\s+', ' ', query).strip()
+            conversation_history = st.session_state.history.copy()  # Use session history for the current conversation
+            try:
+                qnum=st.session_state.history[-1]["qnum"]+1;
+            except:
+                qnum=0;
+            resp, subquestions = query_decomp_tool(query)
+            answers = []
+            resp2 = [];
+            all_queries = [query] + subquestions
+    
+            contexts = []
+            for q in all_queries:
+                contexts.append(retrieve(q, k=5))
+    
+            # flatten AFTER selection
+            all_context = [item for sublist in contexts for item in sublist]
+    
+            # deduplicate
+            seen = set()
+            filtered_context = []
+            for c in all_context:
+                key = (c["doc_id"], c["text"])
+                if key not in seen:
+                    seen.add(key)
+                    filtered_context.append(c)
+    
+            context_str = "\n\n".join([
+            f"({c['doc_id']}: {c['title']} {c['text']})\n"
+            for c in filtered_context
+            ])
+            resp2, answers = query_answer_tool(query=query,subqs=subquestions,context=context_str)
+    
+            if isinstance(resp, list):
+                resp = " ".join(resp)
+            if isinstance(resp2, list):
+                resp2 = ' '.join(resp2);
+            steps = resp + "\n" + resp2;
+            end_time = time.time()
+            # Save conversation
+            st.session_state.history.append({
+            "time":f"{end_time - start_time:0.2f}",
+            "qnum": qnum,
+            "question": query,
+            "steps": steps,
+            "answer":answers
+            });
+    with col2:
+        if(st.button("Clear Conversation")):
+            st.session_state.history = [];
+    
+    grouped = defaultdict(lambda: {"question": "", "steps": "", "answers": []})
+    for msg in st.session_state.history:
+        qnum = msg["qnum"]
+        with st.expander(f"""Reasoning {qnum+1} (Time: {msg['time']}s)""",expanded=False):
+            st.write(f"🧠: {msg['steps']}");
+        with st.expander(f"""Question {qnum+1}""",expanded=False):
+            st.write(f"🧑‍💻: {msg['question']}");
+        with st.expander(f"""Answer {qnum+1}""",expanded=False):
+            st.write(f"🤖: {msg['answer']}");
+            
+if __name__ == "__main__":
+    main()
