@@ -279,7 +279,7 @@ def main():
 # ----------------------------
 # Streamlit UI
 # ----------------------------
-
+    trans_model_saves.run()
     st.title("🩺 Healthcare Chat Assistant")
     
     if "history" not in st.session_state:
