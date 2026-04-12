@@ -1,4 +1,3 @@
-faiss
 numpy
 sentence_transformersfrom 
 collections 
