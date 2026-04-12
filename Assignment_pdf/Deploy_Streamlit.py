@@ -78,7 +78,7 @@ def call_with_retry(payload, retries=3):
             print(f"⚠️ Request failed (retry {i+1}):", e)
 
     return ""   # final fallback
-def query_decomp_tool(query: str, model=llmmodel):
+def query_decomp_tool(query: str, model=""):
     f"""
     {llmmodel}
     """
@@ -159,7 +159,7 @@ def retrieve(query, k=5):
     distances, indices = index.search(q_emb, k)
     return [documents[i] for i in indices[0]]
 
-def query_answer_tool(query,subqs,context,model=llmmodel):
+def query_answer_tool(query,subqs,context,model=""):
     prompt = f"""
     You are given a question, subquestions decomposed from it, and a context.
 
@@ -275,6 +275,7 @@ def main():
 # Streamlit UI
 # ----------------------------
     global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index  
+    
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     qa_path = os.path.join(BASE_DIR, "qa_list.json")
     trans_model = "all_mini_lm"; #bge_large, bge_base, intfloat, all_mini_lm
@@ -282,7 +283,8 @@ def main():
     floats_path = os.path.join(BASE_DIR, f"floats_{trans_model}.npy")
     model = models["all_mini_lm"]
     API_KEY = st.secrets["API_KEY"];
-
+    llmmodel = "meta-llama/llama-3.1-8b-instruct";
+    
     model = SentenceTransformer(trans_model);
 
     with open(qa_path, "r") as f:
@@ -329,7 +331,7 @@ def main():
                 qnum=st.session_state.history[-1]["qnum"]+1;
             except:
                 qnum=0;
-            resp, subquestions = query_decomp_tool(query)
+            resp, subquestions = query_decomp_tool(query,model=llmmodel)
             answers = []
             resp2 = [];
             all_queries = [query] + subquestions
@@ -354,7 +356,7 @@ def main():
             f"({c['doc_id']}: {c['title']} {c['text']})\n"
             for c in filtered_context
             ])
-            resp2, answers = query_answer_tool(query=query,subqs=subquestions,context=context_str)
+            resp2, answers = query_answer_tool(query=query,subqs=subquestions,context=context_str,model=llmmodel)
     
             if isinstance(resp, list):
                 resp = " ".join(resp)
