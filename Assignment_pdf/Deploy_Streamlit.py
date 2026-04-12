@@ -7,7 +7,6 @@ from collections import defaultdict
 import requests
 import streamlit as st
 import time
-from sentence_transformers import SentenceTransformer
 import os
 import torch
 
