@@ -1,6 +1,6 @@
 faiss-cpu
 numpy
-sentence_tran
+sentence_transformers
 requests
 streamlit
 PyPDF2
