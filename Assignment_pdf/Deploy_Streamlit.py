@@ -29,11 +29,11 @@ def load_models():
     models["intfloat"] = SentenceTransformer(
         "intfloat/e5-base-v2", device="cpu"
     )
-    """
-    models["bge_large"] = SentenceTransformer(
-        "BAAI/bge-large-en-v1.5", device="cpu"
-    )
-    """
+    
+    #models["bge_large"] = SentenceTransformer(
+    #    "BAAI/bge-large-en-v1.5", device="cpu"
+    #)
+    
     return models
 
 models = load_models()
