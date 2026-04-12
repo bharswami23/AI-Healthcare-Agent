@@ -26,11 +26,11 @@ def load_models():
     models["bge_base"] = SentenceTransformer(
         "BAAI/bge-base-en-v1.5", device="cpu"
     )
-    """
+    
     models["intfloat"] = SentenceTransformer(
         "intfloat/e5-base-v2", device="cpu"
     )
-    """
+    
     models["bge_large"] = SentenceTransformer(
         "BAAI/bge-large-en-v1.5", device="cpu"
     )
@@ -278,7 +278,7 @@ def main():
     trans_model = "all_mini_lm"; #bge_large, bge_base, intfloat, all_mini_lm
     doc_path = os.path.join(BASE_DIR, f"documents_{trans_model}.json")
     floats_path = os.path.join(BASE_DIR, f"floats_{trans_model}.npy")
-    model = models["intfloat"]
+    model = models[trans_model]
     API_KEY = st.secrets["API_KEY"];
     llmmodel = "meta-llama/llama-3.1-8b-instruct";
     
