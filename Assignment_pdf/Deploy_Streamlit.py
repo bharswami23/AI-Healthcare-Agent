@@ -264,7 +264,7 @@ def main():
 # ----------------------------
 # Streamlit UI
 # ----------------------------
-    global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel.index
+    global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index
     trans_model_saves.run()
     trans_model = "bge_base";#bge_large, bge_base, intfloat, all_mini_lm
     API_KEY = st.secrets["API_KEY"];
