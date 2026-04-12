@@ -9,18 +9,29 @@ import streamlit as st
 import time
 from sentence_transformers import SentenceTransformer
 
-def trans_model_saves():
-    model = SentenceTransformer("all-MiniLM-L6-v2")
-    model.save("all_mini_lm")
-    
-    model = SentenceTransformer("BAAI/bge-base-en-v1.5")
-    model.save("bge_base")
-    
-    model = SentenceTransformer("intfloat/e5-base-v2")
-    model.save("intfloat")
-    
-    model = SentenceTransformer("BAAI/bge-large-en-v1.5")
-    model.save("bge_large")
+@st.cache_resource
+def load_models():
+    models = {}
+
+    models["all_mini_lm"] = SentenceTransformer(
+        "all-MiniLM-L6-v2", device="cpu"
+    )
+
+    models["bge_base"] = SentenceTransformer(
+        "BAAI/bge-base-en-v1.5", device="cpu"
+    )
+
+    models["intfloat"] = SentenceTransformer(
+        "intfloat/e5-base-v2", device="cpu"
+    )
+
+    models["bge_large"] = SentenceTransformer(
+        "BAAI/bge-large-en-v1.5", device="cpu"
+    )
+
+    return models
+
+models = load_models()
 
 global API_KEY, model, qa_list, documents, embeddings, conversation_history,index
 llmmodel=""
@@ -279,9 +290,9 @@ def main():
 # ----------------------------
 # Streamlit UI
 # ----------------------------
-    global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index
-    trans_model_saves()
-    trans_model = "bge_base";#bge_large, bge_base, intfloat, all_mini_lm
+    global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index  
+    trans_model = "bge_base"; #bge_large, bge_base, intfloat, all_mini_lm
+    model = models["all_mini_lm"]
     API_KEY = st.secrets["API_KEY"];
     model = SentenceTransformer(trans_model);
 
