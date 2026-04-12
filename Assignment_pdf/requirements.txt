@@ -1,15 +1,9 @@
 faiss-cpu
 numpy
-sentence_transformers
-collections 
-defaultdict
+sentence_tran
 requests
 streamlit
-time
 PyPDF2
 bs4
 fitz
-tarfile
-io
 playwright.sync_api
-urllib.parse
