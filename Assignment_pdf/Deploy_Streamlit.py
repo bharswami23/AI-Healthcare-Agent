@@ -7,6 +7,21 @@ from collections import defaultdict
 import requests
 import streamlit as st
 import time
+from sentence_transformers import SentenceTransformer
+
+def trans_model_saves():
+    model = SentenceTransformer("all-MiniLM-L6-v2")
+    model.save("all_mini_lm")
+    
+    model = SentenceTransformer("BAAI/bge-base-en-v1.5")
+    model.save("bge_base")
+    
+    model = SentenceTransformer("intfloat/e5-base-v2")
+    model.save("intfloat")
+    
+    model = SentenceTransformer("BAAI/bge-large-en-v1.5")
+    model.save("bge_large")
+
 global API_KEY, model, qa_list, documents, embeddings, conversation_history,index
 llmmodel=""
 def safe_llm_call(response):
@@ -265,7 +280,7 @@ def main():
 # Streamlit UI
 # ----------------------------
     global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index
-    trans_model_saves.run()
+    trans_model_saves()
     trans_model = "bge_base";#bge_large, bge_base, intfloat, all_mini_lm
     API_KEY = st.secrets["API_KEY"];
     model = SentenceTransformer(trans_model);
