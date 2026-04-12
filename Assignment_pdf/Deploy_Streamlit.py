@@ -8,7 +8,7 @@ import requests
 import streamlit as st
 import time
 from sentence_transformers import SentenceTransformer
-
+import os
 os.environ["CUDA_VISIBLE_DEVICES"] = ""
 os.environ["TORCH_DEVICE"] = "cpu"
 
