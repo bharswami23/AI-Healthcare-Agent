@@ -9,6 +9,7 @@ import streamlit as st
 import time
 
 trans_model = "bge_base";#bge_large, bge_base, intfloat, all_mini_lm
+API_KEY = st.secrets["API_KEY"];
 model = SentenceTransformer(trans_model);
 def safe_llm_call(response):
     try:
