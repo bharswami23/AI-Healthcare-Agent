@@ -5,7 +5,6 @@ streamlit
 PyPDF2
 bs4
 fitz
-tarfile
 io
 playwright.sync_api
 urllib.parse
