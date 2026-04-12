@@ -7,10 +7,8 @@ from collections import defaultdict
 import requests
 import streamlit as st
 import time
-
-trans_model = "bge_base";#bge_large, bge_base, intfloat, all_mini_lm
-API_KEY = st.secrets["API_KEY"];
-model = SentenceTransformer(trans_model);
+model=[];
+API_KEY=""
 def safe_llm_call(response):
     try:
         data = response.json()
@@ -281,6 +279,10 @@ def main():
 # Streamlit UI
 # ----------------------------
     trans_model_saves.run()
+    trans_model = "bge_base";#bge_large, bge_base, intfloat, all_mini_lm
+    global API_KEY, model
+    API_KEY = st.secrets["API_KEY"];
+    model = SentenceTransformer(trans_model);
     st.title("🩺 Healthcare Chat Assistant")
     
     if "history" not in st.session_state:
