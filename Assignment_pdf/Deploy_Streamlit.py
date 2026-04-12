@@ -275,14 +275,14 @@ def main():
     
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     qa_path = os.path.join(BASE_DIR, "qa_list.json")
-    trans_model = "intfloat"; #bge_large, bge_base, intfloat, all_mini_lm
+    trans_model = "all_mini_lm"; #bge_large, bge_base, intfloat, all_mini_lm
     doc_path = os.path.join(BASE_DIR, f"documents_{trans_model}.json")
     floats_path = os.path.join(BASE_DIR, f"floats_{trans_model}.npy")
-    model = models["all_mini_lm"]
+    model = models["intfloat"]
     API_KEY = st.secrets["API_KEY"];
     llmmodel = "meta-llama/llama-3.1-8b-instruct";
     
-    model = SentenceTransformer(trans_model);
+    model = SentenceTransformer(model);
 
     with open(qa_path, "r") as f:
         qa_list = json.load(f)
