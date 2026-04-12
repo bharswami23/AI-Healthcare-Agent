@@ -275,7 +275,7 @@ def main():
     
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
     qa_path = os.path.join(BASE_DIR, "qa_list.json")
-    trans_model = "all_mini_lm"; #bge_large, bge_base, intfloat, all_mini_lm
+    trans_model = "bge_base"; #bge_large, bge_base, intfloat, all_mini_lm
     doc_path = os.path.join(BASE_DIR, f"documents_{trans_model}.json")
     floats_path = os.path.join(BASE_DIR, f"floats_{trans_model}.npy")
     model = models["all_mini_lm"]
