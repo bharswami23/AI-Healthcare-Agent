@@ -1,7 +1,0 @@
-numpy
-sentence_transformers
-requests
-streamlit
-PyPDF2
-bs4
-fitz
