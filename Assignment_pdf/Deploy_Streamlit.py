@@ -281,8 +281,6 @@ def main():
     model = models[trans_model]
     API_KEY = st.secrets["API_KEY"];
     llmmodel = "meta-llama/llama-3.1-8b-instruct";
-    
-    model = SentenceTransformer(model);
 
     with open(qa_path, "r") as f:
         qa_list = json.load(f)
