@@ -1,9 +1,9 @@
-faiss-cpu
-numpy
-sentence_transformers
+faiss-cpu==1.7.4
+numpy==1.26.4
+sentence-transformers==2.6.1
 requests
-streamlit
+streamlit==1.32.0
 PyPDF2
-bs4
-fitz
-playwright.sync_api
+beautifulsoup4
+PyMuPDF
+playwright==1.42.0
