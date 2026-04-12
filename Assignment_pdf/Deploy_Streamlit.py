@@ -40,7 +40,7 @@ def load_models():
 models = load_models()
 
 global API_KEY, model, qa_list, documents, embeddings, conversation_history,index, llmmodel
-llmmodel = "meta-llama/llama-3.1-8b-instruct";
+
 def safe_llm_call(response):
     try:
         data = response.json()
