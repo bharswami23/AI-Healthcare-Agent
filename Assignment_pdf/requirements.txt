@@ -1,4 +1,3 @@
-json
 faiss
 numpy
 sentence_transformersfrom 
