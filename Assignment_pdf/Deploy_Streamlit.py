@@ -247,18 +247,18 @@ def query_answer_tool(query,subqs,context,model=""):
             "role": "assistant",
             "content": item["answer"]
             })
-            messages.append({"role": "user", "content": prompt});
-            # Add past conversation
-            payload = {
-            "model": model,
-            "messages": [
-                {"role": "user", "content":prompt}
-                ],
-            "temperature":0,
-            "top_p":1
-            };
+        messages.append({"role": "user", "content": prompt});
+        # Add past conversation
+        payload = {
+        "model": model,
+        "messages": [
+            {"role": "user", "content":prompt}
+            ],
+        "temperature":0,
+        "top_p":1
+        };
 
-            resp = call_with_retry(payload);
+        resp = call_with_retry(payload);
     ans = re.findall(r'<answer>(.*?)</answer>', resp, re.DOTALL);
     if(ans==[]):
         return resp, []
