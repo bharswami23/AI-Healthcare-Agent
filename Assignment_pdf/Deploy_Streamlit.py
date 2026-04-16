@@ -7,39 +7,45 @@ from collections import defaultdict
 import requests
 import streamlit as st
 import time
-import os
-import torch
 
-os.environ["CUDA_VISIBLE_DEVICES"] = ""
-os.environ["TORCH_DEVICE"] = "cpu"
-torch.set_default_tensor_type(torch.FloatTensor)
+trans_model = "bge_base";#bge_large, bge_base, intfloat, all_mini_lm
+model = SentenceTransformer(trans_model);
+API_KEY = "";
+def safe_llm_call(response):
+    try:
+        data = response.json()
+        content = data.get("choices", [{}])[0].get("message", {}).get("content", None)
+        if content is None:
+            print("⚠️ Empty content from model:", data)
+            return ""
+        return content.strip()
+    except Exception as e:
+        print("⚠️ Exception parsing response:", e)
+        return ""
 
-@st.cache_resource
-def load_models():
-    models = {}
+def call_with_retry(payload, retries=3):
+    for i in range(retries):
+        response = requests.post("https://openrouter.ai/api/v1/chat/completions",
+        headers={
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+        }, json=payload)
+        resp = safe_llm_call(response)
+        if resp:
+            return resp
+        print(f"Retry {i+1}...")
+    return ""
 
-    models["all_mini_lm"] = SentenceTransformer(
-        "all-MiniLM-L6-v2", device="cpu"
-    )
-    
-    models["bge_base"] = SentenceTransformer(
-        "BAAI/bge-base-en-v1.5", device="cpu"
-    )
-    
-    models["intfloat"] = SentenceTransformer(
-        "intfloat/e5-base-v2", device="cpu"
-    )
-    
-    #models["bge_large"] = SentenceTransformer(
-    #    "BAAI/bge-large-en-v1.5", device="cpu"
-    #)
-    
-    return models
+with open("qa_list.json", "r") as f:
+    qa_list = json.load(f)
 
-models = load_models()
+with open(f"documents_{trans_model}.json", "r") as f:
+    documents = json.load(f)
 
-global API_KEY, model, qa_list, documents, embeddings, conversation_history,index, llmmodel
+embeddings = np.load(f"floats_{trans_model}.npy")
 
+conversation_history = [];
+llmmodel = "meta-llama/llama-3.1-8b-instruct";
 def safe_llm_call(response):
     try:
         data = response.json()
@@ -77,7 +83,7 @@ def call_with_retry(payload, retries=3):
             print(f"⚠️ Request failed (retry {i+1}):", e)
 
     return ""   # final fallback
-def query_decomp_tool(query: str, model=""):
+def query_decomp_tool(query: str, model=llmmodel):
     prompt = f"""
     You are an expert query/task planner for a RAG system.
 
@@ -146,6 +152,10 @@ def query_decomp_tool(query: str, model=""):
     resp = re.findall(r'<reasoning>(.*?)</reasoning>', resp, re.DOTALL);
     return resp, items
 
+faiss.normalize_L2(embeddings)
+index = faiss.IndexFlatIP(embeddings.shape[1])
+index.add(embeddings)
+
 def get_embedding(text):
     return model.encode(text).tolist()
 
@@ -155,7 +165,7 @@ def retrieve(query, k=5):
     distances, indices = index.search(q_emb, k)
     return [documents[i] for i in indices[0]]
 
-def query_answer_tool(query,subqs,context,model=""):
+def query_answer_tool(query,subqs,context,model=llmmodel):
     prompt = f"""
     You are given a question, subquestions decomposed from it, and a context.
 
@@ -239,145 +249,138 @@ def query_answer_tool(query,subqs,context,model=""):
         messages=[
             {"role": "system", "content": "You answer strictly from the provided conversational history."}];
         for item in conversation_history:
-            messages.append({
-            "role": "user",
-            "content": item["question"]
-            })
-            messages.append({
-            "role": "assistant",
-            "content": item["answer"]
-            })
-        messages.append({"role": "user", "content": prompt});
-        # Add past conversation
-        payload = {
-        "model": model,
-        "messages": [
-            {"role": "user", "content":prompt}
-            ],
-        "temperature":0,
-        "top_p":1
-        };
+            for pair in item["subqa"]:
+                messages.append({
+                    "role": "user",
+                    "content": pair["q"]
+                })
+                messages.append({
+                    "role": "assistant",
+                    "content": pair["a"]
+                })
+            messages.append({"role": "user", "content": prompt});
+            # Add past conversation
+            payload = {
+            "model": model,
+            "messages": [
+                {"role": "user", "content":prompt}
+                ],
+            "temperature":0,
+            "top_p":1
+            };
 
-        resp = call_with_retry(payload);
+            resp = call_with_retry(payload);
     ans = re.findall(r'<answer>(.*?)</answer>', resp, re.DOTALL);
     if(ans==[]):
         return resp, []
     resp = re.sub(r'<answer>.*?</answer>', '', resp, flags=re.DOTALL)
     return resp, ' '.join(ans)
 
-def main():
+def keyword_match(query, documents):
+    keywords = query.lower().split()
+    results = []
+
+    for doc in documents:
+        text = doc["text"].lower()
+
+        score = sum(1 for k in keywords if k in text)
+
+        # 🔥 BOOST numeric content
+        if re.search(r'\d+(\.\d+)?%', text):
+            score += 2
+
+        if score > 0:
+            results.append((score, doc))
+
+    results.sort(reverse=True, key=lambda x: x[0])
+    return [doc for _, doc in results[:10]]
 # ----------------------------
 # Streamlit UI
 # ----------------------------
-    global API_KEY, model, qa_list, documents, embeddings, conversation_history,llmmodel,index  
-    
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    qa_path = os.path.join(BASE_DIR, "qa_list.json")
-    trans_model = "intfloat"; #bge_large, bge_base, intfloat, all_mini_lm
-    doc_path = os.path.join(BASE_DIR, f"documents_{trans_model}.json")
-    floats_path = os.path.join(BASE_DIR, f"floats_{trans_model}.npy")
-    model = models[trans_model]
-    API_KEY = st.secrets["API_KEY"];
-    llmmodel = "meta-llama/llama-3.1-8b-instruct";
 
-    with open(qa_path, "r") as f:
-        qa_list = json.load(f)
-    
-    with open(doc_path, "r") as f:
-        documents = json.load(f)
-    
-    embeddings = np.load(floats_path)
-    
-    conversation_history = [];
-    faiss.normalize_L2(embeddings)
-    index = faiss.IndexFlatIP(embeddings.shape[1])
-    index.add(embeddings)
+st.title("🩺 Healthcare Chat Assistant")
 
-    st.title("🩺 Healthcare Chat Assistant")
-    
-    if "history" not in st.session_state:
-        st.session_state.history = []
-    
-    query = st.text_input("Ask your question:")
-    st.markdown("""
-    <style>
-    /* Remove gap between columns */
-    div[data-testid="column"] {
-        padding: 0 !important;
-    }
-    
-    /* Remove space between columns container */
-    div[data-testid="stHorizontalBlock"] {
-        gap: 0rem !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    col1, col2, col3 = st.columns([4,12,26]);
-    qnum=0;
-    context_str = "";
-    with col1:
-        if st.button("Ask") and query:
-            start_time = time.time()
-            query = re.sub(r'\s+', ' ', query).strip()
-            conversation_history = st.session_state.history.copy()  # Use session history for the current conversation
-            try:
-                qnum=st.session_state.history[-1]["qnum"]+1;
-            except:
-                qnum=0;
-            resp, subquestions = query_decomp_tool(query,model=llmmodel)
-            answers = []
-            resp2 = [];
-            all_queries = [query] + subquestions
-    
-            contexts = []
-            for q in all_queries:
-                contexts.append(retrieve(q, k=5))
-    
-            # flatten AFTER selection
-            all_context = [item for sublist in contexts for item in sublist]
-    
-            # deduplicate
-            seen = set()
-            filtered_context = []
-            for c in all_context:
-                key = (c["doc_id"], c["text"])
-                if key not in seen:
-                    seen.add(key)
-                    filtered_context.append(c)
-    
-            context_str = "\n\n".join([
-            f"({c['doc_id']}: {c['title']} {c['text']})\n"
-            for c in filtered_context
-            ])
-            resp2, answers = query_answer_tool(query=query,subqs=subquestions,context=context_str,model=llmmodel)
-    
-            if isinstance(resp, list):
-                resp = " ".join(resp)
-            if isinstance(resp2, list):
-                resp2 = ' '.join(resp2);
-            steps = resp + "\n" + resp2;
-            end_time = time.time()
-            # Save conversation
-            st.session_state.history.append({
-            "time":f"{end_time - start_time:0.2f}",
-            "qnum": qnum,
-            "question": query,
-            "steps": steps,
-            "answer":answers
-            });
-    with col2:
-        if(st.button("Clear Conversation")):
-            st.session_state.history = [];
-    
-    grouped = defaultdict(lambda: {"question": "", "steps": "", "answers": []})
-    for msg in st.session_state.history:
-        qnum = msg["qnum"]
-        with st.expander(f"""Reasoning {qnum+1} (Time: {msg['time']}s)""",expanded=False):
-            st.write(f"🧠: {msg['steps']}");
-        with st.expander(f"""Question {qnum+1}""",expanded=False):
-            st.write(f"🧑‍💻: {msg['question']}");
-        with st.expander(f"""Answer {qnum+1}""",expanded=False):
-            st.write(f"🤖: {msg['answer']}");
-            
-if __name__ == "__main__":
-    main()
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+API_KEY = st.text_input("Enter your OpenRouter API Key:", type="password");
+query = st.text_input("Ask your question:")
+st.markdown("""
+<style>
+/* Remove gap between columns */
+div[data-testid="column"] {
+    padding: 0 !important;
+}
+
+/* Remove space between columns container */
+div[data-testid="stHorizontalBlock"] {
+    gap: 0rem !important;
+}
+</style>
+""", unsafe_allow_html=True)
+col1, col2, col3 = st.columns([4,12,26]);
+qnum=0;
+context_str = "";
+with col1:
+    if st.button("Ask") and query:
+        start_time = time.time()
+        query = re.sub(r'\s+', ' ', query).strip()
+        conversation_history = st.session_state.history.copy()  # Use session history for the current conversation
+        try:
+            qnum=st.session_state.history[-1]["qnum"]+1;
+        except:
+            qnum=0;
+        resp, subquestions = query_decomp_tool(query)
+        answers = []
+        resp2 = [];
+        all_queries = [query] + subquestions
+
+        contexts = []
+        for q in all_queries:
+            contexts.append(retrieve(q, k=5))
+
+        # flatten AFTER selection
+        all_context = [item for sublist in contexts for item in sublist]
+
+        # deduplicate
+        seen = set()
+        filtered_context = []
+        for c in all_context:
+            key = (c["doc_id"], c["text"])
+            if key not in seen:
+                seen.add(key)
+                filtered_context.append(c)
+
+        context_str = "\n\n".join([
+        f"({c['doc_id']}: {c['title']} {c['text']})\n"
+        for c in filtered_context
+        ])
+        resp2, answers = query_answer_tool(query=query,subqs=subquestions,context=context_str)
+
+        if isinstance(resp, list):
+            resp = " ".join(resp)
+        if isinstance(resp2, list):
+            resp2 = ' '.join(resp2);
+        steps = resp + "\n" + resp2;
+        end_time = time.time()
+        # Save conversation
+        st.session_state.history.append({
+        "time":f"{end_time - start_time:0.2f}",
+        "qnum": qnum,
+        "question": query,
+        "steps": steps,
+        "answer":answers
+        });
+with col2:
+    if(st.button("Clear Conversation")):
+        st.session_state.history = [];
+
+grouped = defaultdict(lambda: {"question": "", "steps": "", "answers": []})
+for msg in st.session_state.history:
+    qnum = msg["qnum"]
+    with st.expander(f"""Reasoning {qnum+1} (Time: {msg['time']}s)""",expanded=False):
+        st.write(f"🧠: {msg['steps']}");
+    with st.expander(f"""Question {qnum+1}""",expanded=False):
+        st.write(f"🧑‍💻: {msg['question']}");
+    with st.expander(f"""Answer {qnum+1}""",expanded=False):
+        st.write(f"🤖: {msg['answer']}");
