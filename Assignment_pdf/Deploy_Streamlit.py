@@ -239,15 +239,14 @@ def query_answer_tool(query,subqs,context,model=""):
         messages=[
             {"role": "system", "content": "You answer strictly from the provided conversational history."}];
         for item in conversation_history:
-            for pair in item["subqa"]:
-                messages.append({
-                    "role": "user",
-                    "content": pair["q"]
-                })
-                messages.append({
-                    "role": "assistant",
-                    "content": pair["a"]
-                })
+            messages.append({
+            "role": "user",
+            "content": item["question"]
+            })
+            messages.append({
+            "role": "assistant",
+            "content": item["answer"]
+            })
             messages.append({"role": "user", "content": prompt});
             # Add past conversation
             payload = {
