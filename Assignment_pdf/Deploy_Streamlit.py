@@ -366,6 +366,7 @@ def main():
     with col2:
         if(st.button("Clear Conversation")):
             st.session_state.history = [];
+            conversation_history = [];
     
     grouped = defaultdict(lambda: {"question": "", "steps": "", "answers": []})
     for msg in st.session_state.history:
