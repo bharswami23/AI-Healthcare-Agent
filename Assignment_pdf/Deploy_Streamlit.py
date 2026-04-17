@@ -190,6 +190,7 @@ def query_answer_tool(query,subqs,context,model=""):
     - Do NOT output anything outside the required format.
     - A citation MUST be provided for every claim made just after the claim in the answer
     - ALL subquestions and the main question MUST be answered in a coherent paragraph of atleast 2 sentences, not just listed as separate answers.
+    - DO NOT USE ANY EXTERNAL KNOWLEDGE
 
     MANDATORY:
     - If the context contains numerical evidence (percentages, counts, statistics), you MUST include them in the answer IF RELEVANT.
