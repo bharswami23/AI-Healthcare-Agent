@@ -164,6 +164,7 @@ def query_answer_tool(query,subqs,context,model=""):
     Answer ALL PARTS of the question and ALL PARTS of the subquestions COMPLETELY, DIRECTLY and ACCURATELY using ONLY the information provided in the CONTEXT.
 
     RULES:
+    - If the answer cannot be obtianed from the context, just return a [].
     - DO NOT use any external knowledge but you are allowed to use your reasoning abilities to combine and synthesize information from the context.
     - You may combine and reason across multiple documents in the context to form the answer.
     - Choose the BEST POSSIBLE ANSWER supported by the context, even if it is not a direct extract from the context.
@@ -195,6 +196,7 @@ def query_answer_tool(query,subqs,context,model=""):
     MANDATORY:
     - If the context contains numerical evidence (percentages, counts, statistics), you MUST include them in the answer IF RELEVANT.
     - Especially include key statistics that support the conclusion.    
+    - If the answer cannot be obtianed from the context, just return a [].
 
     FORMAT:
     {{Reasoning...}}
