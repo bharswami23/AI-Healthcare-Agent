@@ -225,38 +225,38 @@ def query_answer_tool(query,subqs,context,model=""):
         };
 
     resp = call_with_retry(payload);
-   # if(not resp.strip()):
-      #  prompt = f"""
-      #  Answer the question, to the point, using ONLY the conversation history. Answer in complete sentences enclosed within <answer></answer>. Also, cite the document mentioned in the conversation history. If the answer cannot be found in the conversation history return ONLY a ''."
+    if(not resp.strip()):
+        prompt = f"""
+        Answer the question, to the point, using ONLY the conversation history. Answer in complete sentences enclosed within <answer></answer>. Also, cite the document mentioned in the conversation history. If the answer cannot be found in the conversation history return ONLY a ''."
 
-      #  Conversation History:
-      #  {conversation_history}
+        Conversation History:
+        {conversation_history}
 
-      #  Question: {query}
-      #  """
-       # messages=[
-       #     {"role": "system", "content": "You answer strictly from the provided conversational history."}];
-       # for item in conversation_history:
-         #   messages.append({
-        #    "role": "user",
-        #    "content": item["question"]
-        #    })
-        #    messages.append({
-        #    "role": "assistant",
-        #    "content": item["answer"]
-        #    })
-       # messages.append({"role": "user", "content": prompt});
+        Question: {query}
+        """
+        messages=[
+            {"role": "system", "content": "You answer strictly from the provided conversational history."}];
+        for item in conversation_history:
+            messages.append({
+            "role": "user",
+            "content": item["question"]
+            })
+            messages.append({
+            "role": "assistant",
+            "content": item["answer"]
+            })
+        messages.append({"role": "user", "content": prompt});
         # Add past conversation
-       # payload = {
-        #"model": model,
-        #"messages": [
-        #    {"role": "user", "content":prompt}
-        #    ],
-        #"temperature":0,
-       # "top_p":1
-        #};
+        payload = {
+        "model": model,
+        "messages": [
+            {"role": "user", "content":prompt}
+            ],
+        "temperature":0,
+        "top_p":1
+        };
 
-        #resp = call_with_retry(payload);
+        resp = call_with_retry(payload);
     ans = re.findall(r'<answer>(.*?)</answer>', resp, re.DOTALL);
     if(ans==[]):
         return resp, []
