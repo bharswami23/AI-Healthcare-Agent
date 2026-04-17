@@ -117,6 +117,7 @@ def query_decomp_tool(query: str, model=""):
     - ....
     </reasoning>
     Include no other text or formatting outside of the specified tags.
+    """
     payload = {
         "model": model,
         "messages": [
