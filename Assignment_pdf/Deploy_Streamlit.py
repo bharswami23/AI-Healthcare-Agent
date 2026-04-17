@@ -155,7 +155,7 @@ def query_answer_tool(query,subqs,context,model=""):
     Answer ALL PARTS of the question and ALL PARTS of the subquestions COMPLETELY, DIRECTLY and ACCURATELY using ONLY the information provided in the CONTEXT.
 
     RULES:
-    - If the answer cannot be obtianed from the context, just return a [] and NO OTHER TEXT.
+    - If the answer cannot be obtianed from the context, just return a [] and NO OTHER TEXT. DON'T force yourself to associate a context with the question.
     - DO NOT use any external knowledge but you are allowed to use your reasoning abilities to combine and synthesize information from the context.
     - You may combine and reason across multiple documents in the context to form the answer.
     - Choose the BEST POSSIBLE ANSWER supported by the context, even if it is not a direct extract from the context.
@@ -177,7 +177,7 @@ def query_answer_tool(query,subqs,context,model=""):
     - If subquestions are empty, just return a [].
 
     STRICT REQUIREMENTS (NON-NEGOTIABLE):
-    - If the answer cannot be obtianed from the context, just return a [] and NO OTHER TEXT.
+    - If the answer cannot be obtianed from the context, just return a [] and NO OTHER TEXT. DON'T force yourself to associate a context with the question.
     - Your response MUST contain exactly one <answer>...</answer> block.
     - If the <answer> block is missing, your response is INVALID.
     - Do NOT output anything outside the required format.
@@ -185,7 +185,7 @@ def query_answer_tool(query,subqs,context,model=""):
     - ALL subquestions and the main question MUST be answered in a coherent paragraph of atleast 2 sentences, not just listed as separate answers.
 
     MANDATORY:
-    - If the answer cannot be obtianed from the context, just return a [].
+    - If the answer cannot be obtianed from the context, just return a []. DON'T force yourself to associate a context with the question.
     - If the context contains numerical evidence (percentages, counts, statistics), you MUST include them in the answer IF RELEVANT.
     - Especially include key statistics that support the conclusion.    
 
