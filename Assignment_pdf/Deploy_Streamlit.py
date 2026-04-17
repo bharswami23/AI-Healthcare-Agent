@@ -161,10 +161,10 @@ def query_answer_tool(query,subqs,context,model=""):
     prompt = f"""
     You are given a question, subquestions decomposed from it, and a context.
 
-    Answer ALL PARTS of the question and ALL PARTS of the subquestions COMPLETELY, DIRECTLY and ACCURATELY using the information provided in the CONTEXT.
+    Answer ALL PARTS of the question and ALL PARTS of the subquestions COMPLETELY, DIRECTLY and ACCURATELY using ONLY the information provided in the CONTEXT.
 
     RULES:
-    - Do NOT use any external knowledge but you are allowed to use your reasoning abilities to combine and synthesize information from the context.
+    - DO NOT use any external knowledge but you are allowed to use your reasoning abilities to combine and synthesize information from the context.
     - You may combine and reason across multiple documents in the context to form the answer.
     - Choose the BEST POSSIBLE ANSWER supported by the context, even if it is not a direct extract from the context.
     - If the question requires comparison or synthesis: 
