@@ -100,6 +100,8 @@ def query_decomp_tool(query: str, model=""):
     ADDITIONAL REQUIREMENTS (CRITICAL):
     - If the query involves reasoning, explanation, or causal inference:
         - Include subquestions that capture relationships (cause, effect, comparison)
+    - Don't hallucinate. 
+    - If no subquestions are possible, just return [].
 
     STRICT OUTPUT FORMAT (MANDATORY):
     <subquestions>
@@ -179,6 +181,8 @@ def query_answer_tool(query,subqs,context,model=""):
     - Do NOT write 'doc_id' or any extra text inside citations—only the number.
     - Do NOT provide citations without corresponding statements.
     - If the answer cannot be found in the context, return exactly: [''].
+    - Don't hallucinate.
+    - If subquestions are empty, just return a [].
 
     STRICT REQUIREMENTS (NON-NEGOTIABLE):
     - Your response MUST contain exactly one <answer>...</answer> block.
