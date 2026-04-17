@@ -117,16 +117,6 @@ def query_decomp_tool(query: str, model=""):
     - ....
     </reasoning>
     Include no other text or formatting outside of the specified tags.
-    """
-    prompt_ = f"""You are an expert query planner for a RAG system.
-    Given a user question {query}, help answer it by decomposing it into minimal, non-overlapping and exhaustive subquestions optimized for document retrieval.
-    The subquestions should be enclosed within <subquestions></subquestions> tags and formatted as a bulleted list with the bullet '-'.
-    Just print the subquestion in each bulleted item with no other text within the tags <subquestions></subquestions>.
-    For each subquestion: make it atomic, include key entities and keywords explicitly in the subquestions, avoid pronouns or references 
-    to other subquestions in each subquestion, ensure semantic diversity to maximize retrieval coverage.
-    Additionally: order subquestions logically if dependencies exist, restrict the number of subquestions to a maximum of 50 and a minimum of 3.
-    Give the clear logical and coherent reasoning, in points, leading to the subquestions, before the subquestions block <subquestions></subquestions>.
-    """
     payload = {
         "model": model,
         "messages": [
