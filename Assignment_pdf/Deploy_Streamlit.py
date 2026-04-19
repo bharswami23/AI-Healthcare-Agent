@@ -150,6 +150,9 @@ def retrieve(query, k=5):
     return [documents[i] for i in indices[0]]
 
 def query_answer_tool(query,subqs,context,model=""):
+    """
+    Main Answer
+    """
     prompt = f"""
     You are given a question, subquestions decomposed from it, and a context.
 
