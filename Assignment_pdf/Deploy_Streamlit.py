@@ -96,6 +96,7 @@ def query_decomp_tool(query: str, model=""):
     - Expand queries with synonyms or alternate formulations if useful
     - Cover all aspects of the original query (exhaustive)
     - MAXIMUM 8 subquestions, MINIMUM 3. This requirement is to be strictly followed.
+    - If the query is meaningless return a [].
 
     ADDITIONAL REQUIREMENTS (CRITICAL):
     - If the query involves reasoning, explanation, or causal inference:
