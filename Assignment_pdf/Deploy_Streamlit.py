@@ -150,9 +150,7 @@ def retrieve(query, k=5):
     return [documents[i] for i in indices[0]]
 
 def query_answer_tool(query,subqs,context,model=""):
-    """
-    Main Answer
-    """
+    print("Main Answer");
     prompt = f"""
     You are given a question, subquestions decomposed from it, and a context.
 
@@ -230,9 +228,7 @@ def query_answer_tool(query,subqs,context,model=""):
 
     resp = call_with_retry(payload);
     if(not resp.strip()):
-        """
-        Conversation History
-        """
+        print("Conversation History");
         prompt = f"""
         Answer the question, to the point, using ONLY the conversation history. Answer in complete sentences enclosed within <answer></answer>. Also, cite the document mentioned in the conversation history. If the answer cannot be found in the conversation history return ONLY a [].
         If the answer cannot be obtianed from the context, just return a []. DO NOT associate a context to the question for the sake of it.
