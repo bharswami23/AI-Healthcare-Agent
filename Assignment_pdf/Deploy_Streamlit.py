@@ -227,8 +227,9 @@ def query_answer_tool(query,subqs,context,model=""):
     resp = call_with_retry(payload);
     if(not resp.strip()):
         prompt = f"""
-        Answer the question, to the point, using ONLY the conversation history. Answer in complete sentences enclosed within <answer></answer>. Also, cite the document mentioned in the conversation history. If the answer cannot be found in the conversation history return ONLY a ''."
-
+        Answer the question, to the point, using ONLY the conversation history. Answer in complete sentences enclosed within <answer></answer>. Also, cite the document mentioned in the conversation history. If the answer cannot be found in the conversation history return ONLY a [].
+        If the answer cannot be obtianed from the context, just return a []. DO NOT associate a context to the question for the sake of it.
+        
         Conversation History:
         {conversation_history}
 
